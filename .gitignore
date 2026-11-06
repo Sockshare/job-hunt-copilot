@@ -6,3 +6,4 @@ tests/ui/_profile/
 *.db
 .env
 review/
+.review_venv/
