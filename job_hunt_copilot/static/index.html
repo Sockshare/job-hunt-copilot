@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Hunt Copilot — tailor your resume to any job</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#" id="brandLink"><span class="brand-icon">🎯</span><span>Job Hunt Copilot</span></a>
+  <div class="topbar-right">
+    <button class="pill" id="enginePill" title="Which AI is being used"><span class="dot" id="engineDot"></span><span id="engineText">Checking…</span></button>
+    <button class="icon-btn" id="appsBtn" title="Jobs you've worked on">📁 <span class="hide-sm">My jobs</span></button>
+    <button class="icon-btn" id="helpBtn" title="How to use this">❔ <span class="hide-sm">Help</span></button>
+    <button class="icon-btn" id="settingsBtn" title="Settings">⚙️ <span class="hide-sm">Settings</span></button>
+  </div>
+</header>
+
+<main id="app">
+
+  <!-- ============ FIRST RUN ============ -->
+  <section class="screen" id="screen-setup" hidden>
+    <div class="setup-card">
+      <h1>Welcome! 👋</h1>
+      <p class="lead">Job Hunt Copilot compares your resume to a job posting, shows you exactly what's missing, rewrites your resume and cover letter for that job, and lets you practice the interview. Everything stays on <strong>your</strong> computer.</p>
+      <h2>One quick question: how should the AI run?</h2>
+      <p class="muted">The gap analysis, resume health checks, and interview questions work without any AI. The AI is what <b>rewrites</b> your resume and cover letter and <b>coaches</b> your answers.</p>
+      <div class="choice-grid">
+        <button class="choice" data-choice="ollama"><div class="choice-emoji">💻</div><div class="choice-title">On my computer</div><div class="choice-desc">Free and private. Uses a program called <b>Ollama</b>. Rewrites take a few minutes.</div><div class="choice-status" id="ollamaStatus">Looking for Ollama…</div></button>
+        <button class="choice" data-choice="cloud"><div class="choice-emoji">☁️</div><div class="choice-title">Use a cloud AI key</div><div class="choice-desc">Best writing quality, fast. Your resume and the posting are sent to that company.</div><div class="choice-status muted">You'll paste the key next</div></button>
+        <button class="choice" data-choice="offline"><div class="choice-emoji">🔒</div><div class="choice-title">No AI (checklist mode)</div><div class="choice-desc">Gap analysis, resume health checks, interview questions, and fill-in templates. No rewriting.</div><div class="choice-status ok">Always works</div></button>
+      </div>
+      <p class="muted small">You can change this any time in ⚙️ Settings.</p>
+    </div>
+  </section>
+
+  <!-- ============ INPUT ============ -->
+  <section class="screen" id="screen-input" hidden>
+    <div class="hero"><h1>Match your resume to a job</h1><p class="lead">Two things in, one clear plan out.</p></div>
+    <div class="steps-grid">
+      <div class="card step-card">
+        <div class="step-num">1</div>
+        <h2>Your resume</h2>
+        <div class="dropzone small" id="dropzone" tabindex="0" role="button"><div class="drop-title">📄 Drop your resume file here or <span class="link">choose it</span></div><div class="drop-sub">PDF, Word (.docx), or text</div><input type="file" id="fileInput" hidden accept=".pdf,.docx,.txt,.md"></div>
+        <div class="or-row small"><span>or paste it</span></div>
+        <textarea id="resumeText" rows="12" placeholder="Paste the text of your resume here…"></textarea>
+        <div class="row-gap space-between"><span class="muted small" id="resumeCount"></span><label class="check small"><input type="checkbox" id="rememberResume" checked> Remember my resume on this computer</label></div>
+      </div>
+      <div class="card step-card">
+        <div class="step-num">2</div>
+        <h2>The job posting</h2>
+        <input id="companyName" placeholder="Company name (optional)">
+        <textarea id="postingText" rows="14" placeholder="Copy the whole job posting from the website and paste it here — the description AND the requirements."></textarea>
+        <div class="row-gap space-between"><span class="muted small" id="postingCount"></span><button class="btn ghost small" id="sampleBtn">Use an example resume + job</button></div>
+      </div>
+    </div>
+    <div class="center big-action">
+      <button class="btn primary big" id="matchBtn">Compare them →</button>
+      <p class="muted small">Takes about a second. No AI needed for this step.</p>
+    </div>
+    <p class="privacy-note">🔒 <b>Privacy:</b> <span id="privacyText">Your resume never leaves this computer.</span></p>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section class="screen" id="screen-results" hidden>
+    <div class="results-head">
+      <button class="btn ghost" id="backBtn">← Edit resume or posting</button>
+      <div class="results-title"><div class="muted small" id="rCompany"></div><h1 id="rTitle">Job</h1></div>
+      <div class="results-actions"><select id="rStatus" title="Where is this application?"><option value="draft">📝 Preparing</option><option value="applied">📤 Applied</option><option value="interview">🗣️ Interviewing</option><option value="offer">🎉 Offer</option><option value="rejected">❌ Not this time</option><option value="archived">📦 Archived</option></select></div>
+    </div>
+
+    <nav class="subtabs">
+      <button class="subtab active" data-pane="fit">1. How well do I fit?</button>
+      <button class="subtab" data-pane="resume">2. Fix my resume</button>
+      <button class="subtab" data-pane="letter">3. Cover letter</button>
+      <button class="subtab" data-pane="interview">4. Practice interview</button>
+    </nav>
+
+    <!-- Pane: fit -->
+    <div class="pane" id="pane-fit">
+      <div class="fit-grid">
+        <div class="card score-card">
+          <div class="score-ring" id="scoreRing"><div class="score-num" id="scoreNum">—</div><div class="score-label">keyword<br>match</div></div>
+          <p id="scoreWords" class="score-words"></p>
+          <p class="muted small">This counts the skills the posting asks for that your resume mentions. It's what most resume-screening software looks at first. It is <b>not</b> a judgment of you.</p>
+        </div>
+        <div class="card">
+          <h2>❌ Missing from your resume</h2>
+          <p class="muted small">The posting asks for these and your resume doesn't say them. If you've done it, add it — in these words.</p>
+          <div id="rMissing"></div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card"><h2>✅ You already match</h2><div id="rMatched"></div></div>
+        <div class="card"><h2>📋 Requirements check</h2><div id="rReqs"></div><h3>Resume health</h3><div id="rAts"></div></div>
+      </div>
+    </div>
+
+    <!-- Pane: resume -->
+    <div class="pane" id="pane-resume" hidden>
+      <div class="card">
+        <h2>✍️ Rewrite my resume for this job</h2>
+        <p class="muted" id="tailorIntro">The AI rewords your resume to speak to this posting — <b>using only what's already in it</b>. You review every change before using it.</p>
+        <div class="row-gap"><button class="btn primary big" id="tailorBtn">Rewrite it for me</button><span class="muted small" id="tailorHint"></span></div>
+        <div id="tailorWorking" class="working-inline" hidden><div class="spinner small"></div><span id="tailorWorkingText">Rewriting… this can take 1–4 minutes with a local AI.</span></div>
+        <div id="tailorOut" hidden>
+          <div class="notes bad-notes" id="tailorWarnings" hidden></div>
+          <div class="notes" id="tailorChanges" hidden></div>
+          <div class="view-toggle"><button class="btn small active" data-view="diff">Show changes</button><button class="btn small" data-view="clean">Show clean copy</button></div>
+          <div class="diff" id="tailorDiff"></div>
+          <textarea id="tailorClean" rows="24" hidden></textarea>
+          <div class="row-gap"><button class="btn" id="tailorCopy">📋 Copy new resume</button><button class="btn" id="tailorDownload">⬇️ Download .txt</button><button class="btn ghost" id="tailorAgain">Try again</button></div>
+          <p class="muted small">⚠️ Read every green line. If anything isn't true, delete it. You are responsible for what you send.</p>
+        </div>
+        <div id="tailorChecklist" hidden><h3>Your checklist</h3><ul id="tailorChecklistItems"></ul></div>
+      </div>
+    </div>
+
+    <!-- Pane: letter -->
+    <div class="pane" id="pane-letter" hidden>
+      <div class="card">
+        <h2>💌 Cover letter</h2>
+        <div class="form-row"><label>Anything you want it to say? <span class="muted">(why this company, a gap to explain, relocation…)</span></label><textarea id="letterDetails" rows="3" placeholder="e.g. I've used Northstar's product for two years. I'm moving to Seattle in January."></textarea></div>
+        <div class="form-row two"><div><label>Tone</label><select id="letterTone"><option value="warm">Warm and direct</option><option value="formal">Formal</option><option value="confident">Confident</option></select></div><div></div></div>
+        <div class="row-gap"><button class="btn primary big" id="letterBtn">Write it</button><span class="muted small" id="letterHint"></span></div>
+        <div id="letterWorking" class="working-inline" hidden><div class="spinner small"></div><span>Writing… 30–90 seconds with a local AI.</span></div>
+        <div id="letterOut" hidden>
+          <div class="notes bad-notes" id="letterWarnings" hidden></div>
+          <div class="muted small" id="letterNote"></div>
+          <textarea id="letterText" rows="18"></textarea>
+          <div class="row-gap"><button class="btn" id="letterCopy">📋 Copy</button><button class="btn" id="letterDownload">⬇️ Download .txt</button><button class="btn ghost" id="letterAgain">Try again</button></div>
+          <p class="muted small">Fill in anything in [brackets] and read it out loud once before sending.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pane: interview -->
+    <div class="pane" id="pane-interview" hidden>
+      <div class="two-col interview-grid">
+        <div class="card">
+          <h2>🗣️ Likely questions</h2>
+          <p class="muted small">Click a question to practice it. Answer in the box (or use the 🎤 button to speak, if your browser supports it), then get feedback.</p>
+          <h3>About this role</h3><div id="qRole"></div>
+          <h3>About your gaps</h3><div id="qGaps"></div>
+          <h3>Classic questions</h3><div id="qBehav"></div>
+        </div>
+        <div class="card practice-card" id="practiceCard">
+          <h2>Practice</h2>
+          <p class="muted" id="practiceQ">Pick a question on the left.</p>
+          <div class="practice-why muted small" id="practiceWhy"></div>
+          <textarea id="answerText" rows="8" placeholder="Type your answer as you'd say it out loud…" disabled></textarea>
+          <div class="row-gap"><button class="btn" id="micBtn" title="Speak your answer" disabled>🎤 Speak</button><button class="btn primary" id="gradeBtn" disabled>Get feedback</button><span class="muted small" id="gradeHint"></span></div>
+          <div id="gradeWorking" class="working-inline" hidden><div class="spinner small"></div><span>Thinking about your answer…</span></div>
+          <div id="gradeOut" hidden>
+            <div class="grade-score" id="gradeScore"></div>
+            <div class="grade-cols">
+              <div><h3>👍 What worked</h3><ul id="gradeStrengths"></ul></div>
+              <div><h3>🔧 Make it better</h3><ul id="gradeImprove"></ul></div>
+            </div>
+            <div id="gradeStar" class="muted small"></div>
+            <h3>A stronger shape for this answer</h3>
+            <pre class="outline" id="gradeOutline"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ MODALS ============ -->
+<div class="modal-back" id="modalBack" hidden></div>
+
+<div class="modal" id="modal-apps" hidden>
+  <div class="modal-head"><h2>📁 My jobs</h2><button class="x" data-close>✕</button></div>
+  <div class="modal-body"><p class="muted small">Every job you've compared, saved only on this computer.</p><div id="appsList"></div><div class="row-gap"><button class="btn primary" id="appsNew">+ New job</button><button class="btn danger-ghost small" id="appsDeleteAll">🗑️ Delete all saved jobs and my resume</button></div></div>
+</div>
+
+<div class="modal" id="modal-settings" hidden>
+  <div class="modal-head"><h2>⚙️ Settings</h2><button class="x" data-close>✕</button></div>
+  <div class="modal-body">
+    <h3>Which AI should do the writing?</h3>
+    <div class="radio-list">
+      <label class="radio"><input type="radio" name="prov" value="ollama"><div><b>💻 On my computer (Ollama)</b><div class="muted small">Free, private. <span id="setOllamaInfo"></span></div></div></label>
+      <label class="radio"><input type="radio" name="prov" value="openai"><div><b>☁️ OpenAI (or compatible)</b><div class="muted small">Needs an API key.</div></div></label>
+      <label class="radio"><input type="radio" name="prov" value="gemini"><div><b>☁️ Google Gemini</b><div class="muted small">Needs a free Gemini API key.</div></div></label>
+      <label class="radio"><input type="radio" name="prov" value="offline"><div><b>🔒 No AI (checklist mode)</b><div class="muted small">Analysis and templates only. Instant.</div></div></label>
+    </div>
+    <div class="prov-panel" data-prov="ollama">
+      <div class="form-row"><label>Model</label><select id="setOllamaModel"></select></div>
+      <div class="form-row"><label>Ollama address <span class="muted">(leave as is unless you know why)</span></label><input id="setOllamaHost" placeholder="http://127.0.0.1:11434"></div>
+      <div class="help-box" id="ollamaHelp" hidden><b>Don't have Ollama yet?</b> It's free. In a terminal run:<pre>curl -fsSL https://ollama.com/install.sh | sh
+ollama pull llama3.2:3b</pre>Then click <b>Test</b> below. For better writing, try <code>ollama pull qwen2.5:7b</code> if you have 8 GB of RAM.</div>
+    </div>
+    <div class="prov-panel" data-prov="openai">
+      <div class="form-row"><label>API key</label><input id="setOpenaiKey" type="password" placeholder="sk-…" autocomplete="off"><button class="btn small ghost" data-clear-key="openai_api_key" type="button">Remove saved key</button></div>
+      <div class="form-row"><label>Model</label><input id="setOpenaiModel" placeholder="gpt-4o-mini"></div>
+      <div class="form-row"><label>Server address <span class="muted">(change only for Groq / LM Studio etc.)</span></label><input id="setOpenaiUrl" placeholder="https://api.openai.com/v1"></div>
+      <p class="muted small">Get a key at platform.openai.com → API keys. It starts with "sk-".</p>
+    </div>
+    <div class="prov-panel" data-prov="gemini">
+      <div class="form-row"><label>Gemini API key</label><input id="setGeminiKey" type="password" placeholder="AIza…" autocomplete="off"><button class="btn small ghost" data-clear-key="gemini_api_key" type="button">Remove saved key</button></div>
+      <div class="form-row"><label>Model</label><input id="setGeminiModel" placeholder="gemini-2.0-flash"></div>
+      <p class="muted small">Get a free key at aistudio.google.com → "Get API key".</p>
+    </div>
+    <div class="row-gap"><button class="btn" id="setTest">🔌 Test</button><span id="setTestOut" class="small"></span></div>
+    <p class="muted small" id="setEnvNote" hidden></p>
+    <h3>Privacy</h3>
+    <label class="check"><input type="checkbox" id="setSaveHistory"> Save the jobs I compare (only on this computer)</label>
+    <p class="muted small" id="setDataInfo"></p>
+    <div class="modal-foot"><button class="btn primary big" id="setSave">Save settings</button></div>
+  </div>
+</div>
+
+<div class="modal" id="modal-help" hidden>
+  <div class="modal-head"><h2>❔ How to use Job Hunt Copilot</h2><button class="x" data-close>✕</button></div>
+  <div class="modal-body help">
+    <ol>
+      <li><b>Add your resume</b> (drop the file or paste the text) and <b>paste the job posting</b>. Click <b>Compare them</b>.</li>
+      <li><b>How well do I fit?</b> — a keyword score, what's missing, what already matches, and quick fixes for your resume's format.</li>
+      <li><b>Fix my resume</b> — the AI rewords your resume for this job using only what's in it. Every change is shown in color so you can check it.</li>
+      <li><b>Cover letter</b> — a short, specific letter. Fill in the [brackets].</li>
+      <li><b>Practice interview</b> — likely questions for this exact job. Answer, get feedback, try again.</li>
+    </ol>
+    <h3>Is it private?</h3>
+    <p>With "On my computer" or "No AI", nothing leaves your PC. With a cloud key, your resume and the posting are sent to that AI company when you click an AI button.</p>
+    <h3>Something not working?</h3>
+    <p>In a terminal, run <code>python scripts/selfcheck.py</code>. The file <code>docs/TROUBLESHOOTING.md</code> lists every message with its fix.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

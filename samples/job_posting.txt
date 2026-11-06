@@ -1,0 +1,28 @@
+Senior Data Analyst — Customer Insights
+Northstar Analytics · Seattle, WA (hybrid) · Full-time
+
+About the role
+We're looking for a Senior Data Analyst to own customer insights for our product and marketing teams. You'll turn behavioral data into clear recommendations that leaders act on.
+
+What you'll do
+- Build and maintain dashboards (Looker or Tableau) used by executives every week
+- Write complex SQL against BigQuery to answer questions about retention, conversion and lifetime value
+- Design and analyze A/B tests with the growth team
+- Partner with stakeholders across product, marketing and finance to define metrics
+- Present findings to leadership in clear, plain language
+- Mentor junior analysts
+
+What we need (required)
+- 4+ years of experience as a data analyst or similar
+- Expert SQL; experience with BigQuery or Snowflake required
+- Strong Python for analysis (pandas); experience building data pipelines (dbt or Airflow) is a plus
+- Experience with experimentation / A/B testing and statistics
+- Excellent communication and stakeholder management skills
+- Bachelor's degree in a quantitative field
+
+Nice to have
+- Experience with Looker and LookML
+- Familiarity with machine learning basics
+- Experience in e-commerce or subscription businesses
+
+Benefits: medical, dental, 401(k) match, 15 days PTO, remote-friendly hybrid (3 days in Seattle office).

@@ -1,0 +1,25 @@
+MAYA CHEN
+Seattle, WA · (206) 555-0144 · maya.chen@example.com · linkedin.com/in/mayachen
+
+SUMMARY
+Data analyst with 5 years of experience turning messy data into decisions for retail and e-commerce teams.
+
+EXPERIENCE
+
+Data Analyst — Brightcart (online retail), Seattle, WA — Mar 2022 to present
+- Responsible for weekly sales and inventory reports for 3 regional managers
+- Built dashboards in Tableau that replaced 6 manual spreadsheets
+- Wrote Postgres queries to find out why returns went up 18% in Q3 2024; findings led to a packaging change that cut damage returns by a third
+- Helped with the migration of reporting from Excel to a cloud warehouse (Snowflake)
+- Trained 4 new analysts on our reporting tools
+
+Junior Analyst — Northwind Outdoor, Portland, OR — Jun 2020 to Feb 2022
+- Cleaned and combined customer data from 3 systems using Python (pandas)
+- Worked on A/B test readouts for the marketing team
+- Created a monthly customer churn report used by the VP of Marketing
+
+EDUCATION
+B.S. Statistics, Oregon State University, 2020
+
+SKILLS
+SQL (Postgres, Snowflake), Python (pandas), Tableau, Excel, Git, A/B testing
